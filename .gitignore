@@ -1,0 +1,5 @@
+env.list
+.terraform*
+.terragrunt*
+*backend.tf
+*provider.tf
