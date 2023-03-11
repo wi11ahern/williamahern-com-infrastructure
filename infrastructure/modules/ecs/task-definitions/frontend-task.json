@@ -1,0 +1,16 @@
+[
+  {
+    "name": "react",
+    "image": "927822646792.dkr.ecr.us-east-1.amazonaws.com/willahern-com-ecr-dev",
+    "essential": true,
+    "cpu": 100,
+    "memory": 512,
+    "portMappings": [
+      {
+        "containerPort": 3000,
+        "hostPort": 3000,
+        "protocol": "tcp"
+      }
+    ]
+  }
+]

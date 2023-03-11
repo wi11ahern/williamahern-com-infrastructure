@@ -1,7 +1,7 @@
 resource "aws_s3_bucket" "willahern_com_assets" {
-  bucket = "willahern-com-assets-${var.environment_name}"
+  bucket = "willahern-com-assets-${var.env}"
 
   tags = {
-    Environment = var.environment_name
+    Environment = var.env
   }
 }

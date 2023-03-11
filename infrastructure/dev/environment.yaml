@@ -1,1 +1,2 @@
-environment_name: dev
+env: dev
+project_name: willahern-com
