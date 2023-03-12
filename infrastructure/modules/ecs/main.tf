@@ -1,5 +1,5 @@
 resource "aws_ecs_cluster" "willahern_com_cluster" {
-  name = "${var.project_name}-cluster-${var.env}"
+  name = "${local.project_prefix}-ECS-Cluster"
 
   setting {
     name  = "containerInsights"
@@ -9,25 +9,10 @@ resource "aws_ecs_cluster" "willahern_com_cluster" {
   tags = local.common_tags
 }
 
-resource "aws_ecs_task_definition" "frontend_task" {
-  family                = "frontend"
-  container_definitions = file("task-definitions/frontend-task.json")
-
-  tags = local.common_tags
-}
-
-resource "aws_ecs_service" "frontend_service" {
-  name            = "frontend"
-  cluster         = aws_ecs_cluster.willahern_com_cluster.name
-  task_definition = aws_ecs_task_definition.frontend_task.arn
-  desired_count   = 1
-
-  tags = local.common_tags
-}
-
-resource "aws_iam_role" "ecs_for_ec2_role" {
-  name                = "${var.project_name}-ECS-for-EC2-Role"
+resource "aws_iam_role" "task_role" {
+  name                = "${local.project_prefix}-ECS-Task-Role"
   managed_policy_arns = [data.aws_iam_policy.AmazonEC2ContainerServiceforEC2Role.arn]
+
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -36,20 +21,49 @@ resource "aws_iam_role" "ecs_for_ec2_role" {
         Effect = "Allow"
         Sid    = ""
         Principal = {
-          Service = "ec2.amazonaws.com"
+          Service = "ecs-tasks.amazonaws.com"
         }
       },
     ]
   })
 }
 
-resource "aws_iam_instance_profile" "ecs_for_ec2_instance_profile" {
-  name = "test_profile"
-  role = aws_iam_role.ecs_for_ec2_role.name
+resource "aws_ecs_task_definition" "frontend_task" {
+  family                = "frontend"
+  requires_compatibilities = ["FARGATE"]
+  cpu = 1024
+  memory = 2048
+  network_mode = "awsvpc"
+  execution_role_arn = aws_iam_role.task_role.arn
+  container_definitions = file("container-definitions/frontend.json")
+
+  runtime_platform {
+    operating_system_family = "LINUX"
+    cpu_architecture        = "X86_64"
+  }
+
+  tags = local.common_tags
+}
+
+resource "aws_ecs_service" "frontend_service" {
+  name            = "frontend"
+  cluster         = aws_ecs_cluster.willahern_com_cluster.name
+  task_definition = aws_ecs_task_definition.frontend_task.arn
+  launch_type = "FARGATE"
+  platform_version = "LATEST"
+  desired_count   = 1
+
+  network_configuration {
+    subnets = [var.public_subnet_id]
+    assign_public_ip = true
+    security_groups = [aws_security_group.allow_https_sg.id]
+  }
+
+  tags = local.common_tags
 }
 
 resource "aws_security_group" "allow_https_sg" {
-  name        = "Allow HTTPS"
+  name        = "${local.project_prefix}-SG"
   description = "Allow HTTPS traffic"
   vpc_id      = var.vpc_id
 
@@ -67,33 +81,6 @@ resource "aws_security_group" "allow_https_sg" {
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
-
-  tags = {
-    Environment = var.env
-  }
-}
-
-resource "aws_network_interface" "web_server_nit" {
-  subnet_id = var.private_subnet_id
-
-  tags = local.common_tags
-}
-
-resource "aws_instance" "web_server" {
-  ami                  = jsondecode(data.aws_ssm_parameter.ecs_optimized_ami.value)["image_id"]
-  instance_type        = "t3.micro"
-  iam_instance_profile = aws_iam_instance_profile.ecs_for_ec2_instance_profile.name
-
-  network_interface {
-    network_interface_id = aws_network_interface.web_server_nit.id
-    device_index         = 0
-  }
-
-  user_data = <<EOF
-#!/bin/bash
-echo 'ECS_CLUSTER=${aws_ecs_cluster.willahern_com_cluster.name}' >> /etc/ecs/ecs.config
-echo 'ECS_DISABLE_PRIVILEGED=true' >> /etc/ecs/ecs.config
-EOF
 
   tags = local.common_tags
 }
