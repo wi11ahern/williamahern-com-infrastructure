@@ -29,6 +29,7 @@ Terraform modules, we can leverage this structure to logically separate infrastr
 depending on the environment and region we want to deploy to.
 
 ## Run Locally
+**Note: Before proceeding with this section, ensure you have the AWS Docker image built from the [Dockerfile library](https://github.com/wi11ahern/dockerfile-library).**
 ```bash
 docker run -it --rm --env-file env.list -v $HOME/Projects/willahern-com-infrastructure:/willahern-com-infrastructure -t aws
 ```
