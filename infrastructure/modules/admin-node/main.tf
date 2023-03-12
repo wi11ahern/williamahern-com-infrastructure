@@ -49,6 +49,14 @@ resource "aws_security_group" "admin_node_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    description = "All ICMP - IPv4"
+    from_port   = -1
+    to_port     = -1
+    protocol    = "ICMP"
+    cidr_blocks = [var.vpc_cidr_block]
+  }
+
   egress {
     from_port        = 0
     to_port          = 0

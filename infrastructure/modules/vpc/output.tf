@@ -38,4 +38,6 @@ output "public_route_table_id" {
   value = aws_route_table.public_route_table.id
 }
 
-
+output "vpc_cidr_block" {
+  value = aws_vpc.main.cidr_block
+}
