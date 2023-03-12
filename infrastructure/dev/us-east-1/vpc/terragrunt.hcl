@@ -2,6 +2,8 @@ terraform {
   source = "../../../modules//vpc"
 }
 
+prevent_destroy = true
+
 locals {
   env_vars = yamldecode(file("${find_in_parent_folders("environment.yaml")}"))
 }
