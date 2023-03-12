@@ -42,22 +42,6 @@ resource "aws_security_group" "admin_node_sg" {
   vpc_id = var.vpc_id
 
   ingress {
-    description = "HTTPS"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "HTTP"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
     description = "SSH"
     from_port   = 22
     to_port     = 22
@@ -83,10 +67,30 @@ resource "aws_network_interface" "admin_node_nit" {
   tags = local.common_tags
 }
 
+resource "aws_eip" "admin_node_eip" {
+  network_interface         = aws_network_interface.admin_node_nit.id
+
+  tags = local.common_tags
+}
+
+resource "tls_private_key" "admin_node_ssh_key" {
+  algorithm = "RSA"
+  rsa_bits = 4096
+}
+
+resource "aws_key_pair" "admin_node_key_pair" {
+  key_name = "${var.project_name}-admin-node"
+  public_key = tls_private_key.admin_node_ssh_key.public_key_openssh
+
+  tags = local.common_tags
+}
+
 resource "aws_instance" "admin_node" {
   ami                  = data.aws_ami.amazon_linux_ami.id
   instance_type        = "t3.micro"
   iam_instance_profile = aws_iam_instance_profile.admin_node_instance_profile.name
+  key_name = aws_key_pair.admin_node_key_pair.key_name
+  user_data = data.template_file.user_data_template.rendered
 
   network_interface {
     network_interface_id = aws_network_interface.admin_node_nit.id
