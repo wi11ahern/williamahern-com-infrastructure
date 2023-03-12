@@ -51,6 +51,7 @@ resource "aws_iam_instance_profile" "ecs_for_ec2_instance_profile" {
 resource "aws_security_group" "allow_https_sg" {
   name        = "Allow HTTPS"
   description = "Allow HTTPS traffic"
+  vpc_id      = var.vpc_id
 
   ingress {
     description = "HTTPS"
@@ -82,7 +83,6 @@ resource "aws_instance" "web_server" {
   ami                  = jsondecode(data.aws_ssm_parameter.ecs_optimized_ami.value)["image_id"]
   instance_type        = "t3.micro"
   iam_instance_profile = aws_iam_instance_profile.ecs_for_ec2_instance_profile.name
-  security_groups      = [aws_security_group.allow_https_sg.name]
 
   network_interface {
     network_interface_id = aws_network_interface.web_server_nit.id
