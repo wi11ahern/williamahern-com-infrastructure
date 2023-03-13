@@ -7,7 +7,8 @@ locals {
 }
 
 inputs = {
-  env = local.env_vars["env"]
+  env               = local.env_vars["env"]
+  project_name      = local.env_vars["project_name"]
 }
 
 include "root" {
