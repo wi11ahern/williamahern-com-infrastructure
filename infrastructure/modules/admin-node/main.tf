@@ -1,5 +1,5 @@
 resource "aws_iam_role" "admin_node_role" {
-  name = "${var.project_name}-Admin-Node"
+  name = local.lambda_name
 
   inline_policy {
     name = "AdminAccess"
@@ -33,12 +33,12 @@ resource "aws_iam_role" "admin_node_role" {
 }
 
 resource "aws_iam_instance_profile" "admin_node_instance_profile" {
-  name = "${var.project_name}-Admin-Node-Profile"
+  name = "${local.lambda_name}-Profile"
   role = aws_iam_role.admin_node_role.name
 }
 
 resource "aws_security_group" "admin_node_sg" {
-  name   = "${var.project_name}-Admin-Node-SG"
+  name   = "${local.lambda_name}-SG"
   vpc_id = var.vpc_id
 
   ingress {
@@ -65,7 +65,13 @@ resource "aws_security_group" "admin_node_sg" {
     ipv6_cidr_blocks = ["::/0"]
   }
 
+  lifecycle {
+    create_before_destroy = true
+  }
+
   tags = local.common_tags
+
+
 }
 
 resource "aws_network_interface" "admin_node_nit" {
@@ -73,6 +79,10 @@ resource "aws_network_interface" "admin_node_nit" {
   security_groups = [aws_security_group.admin_node_sg.id]
 
   tags = local.common_tags
+
+  depends_on = [
+    aws_security_group.admin_node_sg
+  ]
 }
 
 resource "aws_eip" "admin_node_eip" {
@@ -87,7 +97,7 @@ resource "tls_private_key" "admin_node_ssh_key" {
 }
 
 resource "aws_key_pair" "admin_node_key_pair" {
-  key_name   = "${var.project_name}-admin-node"
+  key_name   = "${local.lambda_name}-Key-Pair"
   public_key = tls_private_key.admin_node_ssh_key.public_key_openssh
 
   tags = local.common_tags
@@ -106,6 +116,6 @@ resource "aws_instance" "admin_node" {
   }
 
   tags = merge(local.common_tags, {
-    Name = "${var.project_name}-Admin-Node"
+    Name = local.lambda_name
   })
 }
