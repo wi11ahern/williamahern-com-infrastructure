@@ -29,3 +29,7 @@ output "igw_id" {
 output "vpc_cidr_block" {
   value = aws_vpc.main.cidr_block
 }
+
+output "availability_zones" {
+  value = toset([local.availability_zones[0], local.availability_zones[1]])
+}
