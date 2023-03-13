@@ -5,3 +5,7 @@ variable "env" {
 variable "project_name" {
   type = string
 }
+
+variable "elb_account_id" {
+  type = string
+}

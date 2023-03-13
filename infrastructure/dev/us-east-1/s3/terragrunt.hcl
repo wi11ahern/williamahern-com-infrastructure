@@ -9,6 +9,7 @@ locals {
 inputs = {
   env               = local.env_vars["env"]
   project_name      = local.env_vars["project_name"]
+  elb_account_id    = local.env_vars["elb_account_id"]
 }
 
 include "root" {
