@@ -54,7 +54,7 @@ resource "aws_ecs_service" "frontend_service" {
   desired_count   = 1
 
   network_configuration {
-    subnets = [var.public_subnet_id]
+    subnets = var.public_subnet_ids
     assign_public_ip = true
     security_groups = [aws_security_group.allow_https_sg.id]
   }

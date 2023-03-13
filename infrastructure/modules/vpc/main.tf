@@ -1,47 +1,49 @@
 resource "aws_vpc" "main" {
   cidr_block = "10.0.0.0/16"
 
-  tags = merge(local.common_tags, { "Name" : "${var.project_name}-VPC" })
+  tags = merge(local.common_tags, { "Name" : "${local.project_prefix}-VPC" })
 }
 
-resource "aws_subnet" "public_subnet" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.1.0/24"
-
-  tags = merge(local.common_tags, { "Name" : "${var.project_name}-Public-Subnet" })
-}
-
-resource "aws_subnet" "private_subnet" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.2.0/24"
-
-  tags = merge(local.common_tags, { "Name" : "${var.project_name}-Private-Subnet" })
-}
-
+##### Public Routing #####
 resource "aws_internet_gateway" "internet_gateway" {
   vpc_id = aws_vpc.main.id
 
-  tags = merge(local.common_tags, { "Name" : "${var.project_name}-IGW" })
+  tags = merge(local.common_tags, { "Name" : "${local.project_prefix}-IGW" })
 }
 
-resource "aws_eip" "nat_gateway" {
+resource "aws_subnet" "public_subnets" {
+  for_each = local.cidr_to_public_subnet_map
+  vpc_id     = aws_vpc.main.id
+  cidr_block = each.value[0]
+  availability_zone = each.value[1]
+
+  tags = merge(local.common_tags, { "Name" : "${local.project_prefix}-${each.value[1]}-Public-Subnet" })
+}
+
+resource "aws_eip" "nat_gateway_eips" {
+  for_each = local.cidr_to_public_subnet_map
+
   vpc = true
 
-  tags = merge(local.common_tags, { "Name" : "${var.project_name}-NAT-Gateway-IP" })
+  tags = merge(local.common_tags, { "Name" : "${local.project_prefix}-${each.value[1]}-NAT-Gateway-IP" })
 }
 
-resource "aws_nat_gateway" "nat_gateway" {
-  allocation_id = aws_eip.nat_gateway.id
-  subnet_id     = aws_subnet.public_subnet.id
+resource "aws_nat_gateway" "nat_gateways" {
+  for_each = local.cidr_to_public_subnet_map
+
+  allocation_id = aws_eip.nat_gateway_eips[each.key].id
+  subnet_id     = aws_subnet.public_subnets[each.key].id
 
   # To ensure proper ordering, it is recommended to add an explicit dependency
   # on the Internet Gateway for the VPC.
   depends_on = [aws_internet_gateway.internet_gateway]
 
-  tags = merge(local.common_tags, { "Name" : "${var.project_name}-NAT-Gateway" })
+  tags = merge(local.common_tags, { "Name" : "${local.project_prefix}-${each.value[1]}-NAT-Gateway" })
 }
 
-resource "aws_route_table" "public_route_table" {
+resource "aws_route_table" "public_route_tables" {
+  for_each = local.cidr_to_public_subnet_map
+
   vpc_id = aws_vpc.main.id
 
   route {
@@ -49,26 +51,42 @@ resource "aws_route_table" "public_route_table" {
     gateway_id = aws_internet_gateway.internet_gateway.id
   }
 
-  tags = merge(local.common_tags, { "Name" : "${var.project_name}-Public-Route-Table" })
+  tags = merge(local.common_tags, { "Name" : "${local.project_prefix}-Public-Route-Table-${each.key}" })
 }
 
-resource "aws_route_table_association" "public_subnet_rt_association" {
-  subnet_id      = aws_subnet.public_subnet.id
-  route_table_id = aws_route_table.public_route_table.id
+resource "aws_route_table_association" "public_subnet_rt_associations" {
+  for_each = local.cidr_to_public_subnet_map
+
+  subnet_id      = aws_subnet.public_subnets[each.key].id
+  route_table_id = aws_route_table.public_route_tables[each.key].id
 }
 
-resource "aws_route_table" "private_route_table" {
+##### Private Routing #####
+resource "aws_subnet" "private_subnets" {
+  for_each = local.cidr_to_private_subnet_map
+
+  vpc_id     = aws_vpc.main.id
+  cidr_block = each.value[0]
+  availability_zone = each.value[1]
+
+  tags = merge(local.common_tags, { "Name" : "${local.project_prefix}-${each.value[1]}-Private-Subnet" })
+}
+resource "aws_route_table" "private_route_tables" {
+  for_each = local.cidr_to_private_subnet_map
+
   vpc_id = aws_vpc.main.id
 
   route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_nat_gateway.nat_gateway.id
+    cidr_block = each.value[0]
+    gateway_id = aws_nat_gateway.nat_gateways[each.key].id
   }
 
-  tags = merge(local.common_tags, { "Name" : "${var.project_name}-Private-Route-Table" })
+  tags = merge(local.common_tags, { "Name" : "${local.project_prefix}-Private-Route-Table-${each.key}" })
 }
 
-resource "aws_route_table_association" "private_subnet_rt_association" {
-  subnet_id      = aws_subnet.private_subnet.id
-  route_table_id = aws_route_table.private_route_table.id
+resource "aws_route_table_association" "private_subnet_rt_associations" {
+  for_each = local.cidr_to_private_subnet_map
+
+  subnet_id      = aws_subnet.private_subnets[each.key].id
+  route_table_id = aws_route_table.private_route_tables[each.key].id
 }

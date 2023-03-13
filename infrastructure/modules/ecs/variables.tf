@@ -19,6 +19,6 @@ variable "vpc_cidr_block" {
   type = string
 }
 
-variable "public_subnet_id" {
-  type = string
+variable "public_subnet_ids" {
+  type = set(string)
 }

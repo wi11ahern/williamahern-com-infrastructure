@@ -20,7 +20,7 @@ inputs = {
   project_name     = local.env_vars["project_name"]
   vpc_id           = dependency.vpc.outputs.vpc_id
   vpc_cidr_block   = dependency.vpc.outputs.vpc_cidr_block
-  public_subnet_id = dependency.vpc.outputs.public_subnet_id
+  public_subnet_id = dependency.vpc.outputs.public_subnet_ids[0]
 }
 
 include "root" {
