@@ -51,7 +51,7 @@ resource "aws_ecs_service" "frontend_service" {
   task_definition = aws_ecs_task_definition.frontend_task.arn
   launch_type = "FARGATE"
   platform_version = "LATEST"
-  desired_count   = 1
+  desired_count   = 2
 
   network_configuration {
     subnets = var.public_subnet_ids
@@ -59,19 +59,32 @@ resource "aws_ecs_service" "frontend_service" {
     security_groups = [aws_security_group.allow_https_sg.id]
   }
 
+  load_balancer {
+    target_group_arn = var.alb_target_group_arn
+    container_name   = "react"
+    container_port   = 3000
+  }
+
   tags = local.common_tags
 }
 
 resource "aws_security_group" "allow_https_sg" {
-  name        = "${local.project_prefix}-SG"
+  name        = "${local.project_prefix}-ECS-SG"
   description = "Allow HTTPS traffic"
   vpc_id      = var.vpc_id
+
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "TCP"
+  }
 
   ingress {
     description = "HTTPS"
     from_port   = 443
     to_port     = 443
-    protocol    = "HTTPS"
+    protocol    = "TCP"
   }
 
   ingress {
@@ -88,6 +101,10 @@ resource "aws_security_group" "allow_https_sg" {
     protocol         = "-1"
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 
   tags = local.common_tags

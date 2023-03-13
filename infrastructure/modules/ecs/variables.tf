@@ -22,3 +22,7 @@ variable "vpc_cidr_block" {
 variable "public_subnet_ids" {
   type = set(string)
 }
+
+variable "alb_target_group_arn" {
+  type = string
+}

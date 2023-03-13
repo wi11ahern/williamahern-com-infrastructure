@@ -11,6 +11,13 @@ dependency "vpc" {
   }
 }
 
+dependency "alb" {
+  config_path = "../alb"
+  mock_outputs = {
+    target_group_arn = ""
+  }
+}
+
 locals {
   env_vars = yamldecode(file("${find_in_parent_folders("environment.yaml")}"))
 }
@@ -21,6 +28,7 @@ inputs = {
   vpc_id            = dependency.vpc.outputs.vpc_id
   vpc_cidr_block    = dependency.vpc.outputs.vpc_cidr_block
   public_subnet_ids = dependency.vpc.outputs.public_subnet_ids
+  alb_target_group_arn = dependency.alb.outputs.target_group_arn
 }
 
 include "root" {
