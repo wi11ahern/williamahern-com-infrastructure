@@ -18,7 +18,7 @@ resource "aws_s3_bucket_policy" "logs_bucket_policy" {
       {
         "Effect" : "Allow",
         "Principal" : {
-          "AWS": "arn:aws:iam::${var.elb_account_id}:root"
+          "AWS" : "arn:aws:iam::${var.elb_account_id}:root"
         },
         "Action" : "s3:PutObject",
         "Resource" : "${aws_s3_bucket.logs.arn}/AWSLogs/*"

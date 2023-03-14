@@ -12,9 +12,9 @@ resource "aws_internet_gateway" "internet_gateway" {
 }
 
 resource "aws_subnet" "public_subnets" {
-  for_each = local.cidr_to_public_subnet_map
-  vpc_id     = aws_vpc.main.id
-  cidr_block = each.value[0]
+  for_each          = local.cidr_to_public_subnet_map
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = each.value[0]
   availability_zone = each.value[1]
 
   tags = merge(local.common_tags, { "Name" : "${local.project_prefix}-${each.value[1]}-Public-Subnet" })
@@ -65,8 +65,8 @@ resource "aws_route_table_association" "public_subnet_rt_associations" {
 resource "aws_subnet" "private_subnets" {
   for_each = local.cidr_to_private_subnet_map
 
-  vpc_id     = aws_vpc.main.id
-  cidr_block = each.value[0]
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = each.value[0]
   availability_zone = each.value[1]
 
   tags = merge(local.common_tags, { "Name" : "${local.project_prefix}-${each.value[1]}-Private-Subnet" })

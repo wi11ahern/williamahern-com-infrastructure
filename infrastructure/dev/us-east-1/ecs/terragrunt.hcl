@@ -14,7 +14,15 @@ dependency "vpc" {
 dependency "alb" {
   config_path = "../alb"
   mock_outputs = {
-    target_group_arn = ""
+    target_group_arn      = ""
+    alb_security_group_id = ""
+  }
+}
+
+dependency "ecr" {
+  config_path = "../ecr"
+  mock_outputs = {
+    ecr_repository_url = ""
   }
 }
 
@@ -23,12 +31,15 @@ locals {
 }
 
 inputs = {
-  env                  = local.env_vars["env"]
-  project_name         = local.env_vars["project_name"]
-  vpc_id               = dependency.vpc.outputs.vpc_id
-  vpc_cidr_block       = dependency.vpc.outputs.vpc_cidr_block
-  public_subnet_ids    = dependency.vpc.outputs.public_subnet_ids
-  alb_target_group_arn = dependency.alb.outputs.target_group_arn
+  env                   = local.env_vars["env"]
+  project_name          = local.env_vars["project_name"]
+  vpc_id                = dependency.vpc.outputs.vpc_id
+  vpc_cidr_block        = dependency.vpc.outputs.vpc_cidr_block
+  public_subnet_ids     = dependency.vpc.outputs.public_subnet_ids
+  alb_target_group_arn  = dependency.alb.outputs.target_group_arn
+  alb_security_group_id = dependency.alb.outputs.alb_security_group_id
+  ecr_repository_url    = dependency.ecr.outputs.ecr_repository_url
+
 }
 
 include "root" {

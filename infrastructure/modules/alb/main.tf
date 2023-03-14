@@ -59,11 +59,11 @@ resource "aws_lb_target_group" "frontend_alb_tg" {
 
   health_check {
     healthy_threshold = 3
-    interval = 10 
-    timeout = 5
-    path = "/"
-    port = 80
-    protocol = "HTTP"
+    interval          = 10
+    timeout           = 5
+    path              = "/"
+    port              = 80
+    protocol          = "HTTP"
   }
 
   lifecycle {

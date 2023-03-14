@@ -4,7 +4,7 @@ locals {
     Project     = var.project_name
   }
 
-  project_prefix = "${var.project_name}-${var.env}"
+  project_prefix     = "${var.project_name}-${var.env}"
   availability_zones = data.aws_availability_zones.availability_zones.names
 
   cidr_to_public_subnet_map = {
