@@ -1,3 +1,4 @@
 env: dev
 project_name: willahern-com
+domain_name: williamahern.com
 elb_account_id: 127311923021

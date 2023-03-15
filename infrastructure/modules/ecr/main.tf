@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "ecr_repository" {
-  name                 = "${local.project_prefix}"
+  name                 = local.project_prefix
   image_tag_mutability = "MUTABLE"
   force_delete         = true
 
