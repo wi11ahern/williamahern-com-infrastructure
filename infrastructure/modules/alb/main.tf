@@ -75,8 +75,10 @@ resource "aws_lb_target_group" "frontend_alb_tg" {
 
 resource "aws_lb_listener" "front_end" {
   load_balancer_arn = aws_alb.frontend_alb.arn
-  port              = 80
-  protocol          = "HTTP"
+  port              = 443
+  protocol          = "HTTPS"
+  certificate_arn   = var.acm_certificate_arn
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
 
   default_action {
     type             = "forward"

@@ -24,6 +24,7 @@ locals {
 inputs = {
   env             = local.env_vars["env"]
   project_name    = local.env_vars["project_name"]
+  domain_name     = local.env_vars["domain_name"]
   vpc_id          = dependency.vpc.outputs.vpc_id
   subnet_ids      = dependency.vpc.outputs.public_subnet_ids
   log_bucket_name = dependency.s3.outputs.log_bucket_name

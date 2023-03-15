@@ -17,3 +17,11 @@ variable "subnet_ids" {
 variable "log_bucket_name" {
   type = string
 }
+
+variable "domain_name" {
+  type = string
+}
+
+variable "acm_certificate_arn" {
+  type = string
+}
