@@ -64,16 +64,6 @@ resource "aws_ecs_task_definition" "frontend_task" {
           "protocol" : "tcp"
         }
       ],
-      "healthCheck" : {
-        "retries" : 3,
-        "command" : [
-          "CMD",
-          "curl -f http://localhost:80 || exit 1"
-        ],
-        "timeout" : 5,
-        "interval" : 10,
-        "startPeriod" : 20
-      },
       "logConfiguration" : {
         "logDriver" : "awslogs",
         "options" : {
