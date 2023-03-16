@@ -1,5 +1,5 @@
 terraform {
-  source = "../../../modules//ecr-cleaner-lambda"
+  source = "../../../../modules//ecr-cleaner-lambda"
 }
 
 locals {
@@ -9,7 +9,7 @@ locals {
 dependency "ecr" {
   config_path = "../ecr"
   mock_outputs = {
-    ecr_arn = ""
+    ecr_arn = "arn:aws:ecr:us-east-1:927822646792:repository/abc"
   }
 }
 

@@ -1,8 +1,9 @@
 terraform {
-  source = "../../../modules//vpc"
+  source = "../../../../modules//vpc"
 }
 
 prevent_destroy = true
+# skip = true
 
 locals {
   env_vars = yamldecode(file("${find_in_parent_folders("environment.yaml")}"))
@@ -16,5 +17,3 @@ inputs = {
 include "root" {
   path = find_in_parent_folders()
 }
-
-skip = true

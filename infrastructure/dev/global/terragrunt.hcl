@@ -7,7 +7,7 @@ remote_state {
   config = {
     bucket = "williamahern-com-dev-terraform-state"
 
-    key      = "${path_relative_to_include()}/us-east-1/dev.tfstate"
+    key      = "${path_relative_to_include()}/global/dev.tfstate"
     region   = "us-east-1"
     encrypt  = true
     role_arn = "arn:aws:iam::927822646792:role/terraform/TerraformBackend"

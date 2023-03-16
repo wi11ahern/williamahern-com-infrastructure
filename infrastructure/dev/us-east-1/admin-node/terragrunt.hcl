@@ -1,13 +1,13 @@
 terraform {
-  source = "../../../modules//admin-node"
+  source = "../../../../modules//admin-node"
 }
 
 dependency "vpc" {
   config_path = "../vpc"
   mock_outputs = {
-    vpc_id           = ""
-    vpc_cidr_block   = ""
-    public_subnet_id = ""
+    vpc_id            = "abc"
+    vpc_cidr_block    = "10.0.0.0/16"
+    public_subnet_ids = ["abc"]
   }
 }
 

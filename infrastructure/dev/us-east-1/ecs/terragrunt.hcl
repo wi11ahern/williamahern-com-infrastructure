@@ -1,28 +1,28 @@
 terraform {
-  source = "../../../modules//ecs"
+  source = "../../../../modules//ecs"
 }
 
 dependency "vpc" {
   config_path = "../vpc"
   mock_outputs = {
-    vpc_id           = ""
-    vpc_cidr_block   = ""
-    public_subnet_id = ""
+    vpc_id            = "abc"
+    vpc_cidr_block    = "10.0.0.0/16"
+    public_subnet_ids = ["abc"]
   }
 }
 
 dependency "alb" {
   config_path = "../alb"
   mock_outputs = {
-    target_group_arn      = ""
-    alb_security_group_id = ""
+    target_group_arn      = "arn:aws:elasticloadbalancing:us-east-1:927822646792:targetgroup/abc"
+    alb_security_group_id = "abc"
   }
 }
 
 dependency "ecr" {
   config_path = "../ecr"
   mock_outputs = {
-    ecr_repository_url = ""
+    ecr_repository_url = "arn:aws:ecr:us-east-1:927822646792:repository/abc"
   }
 }
 
