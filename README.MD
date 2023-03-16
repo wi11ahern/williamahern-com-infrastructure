@@ -6,31 +6,28 @@ This project contains Terraform infrastructure definitions for `williamahern.com
 Infrastructure is separated by environment and region (environment-region). The modules directory contains Terraform modules that are then referenced by the Terragrunt configuration files of each environment-region infrastructure folder.
 ```
 .
-└── infrastructure
-    ├── dev
-    │   ├── us-east-1
-    │   │   └── ecr
-    │   ├── us-west-1
-    │   │   └── ecr
-    │   └── ...
-    ├── test
-    │   ├── us-east-1
-    │   │   └── ecr
-    │   ├── us-west-1
-    │   │   └── ecr
-    │   └── ...
-    ├── prod
-    │   ├── us-east-1
-    │   │   └── ecr
-    │   ├── us-west-1
-    │   │   └── ecr
-    │   └── ...
-    └── modules
-        ├── .bootstrap
-        ├── vpc
-        ├── s3
-        ├── route53
-        └── ...
+├── infrastructure
+│   ├── dev
+│   │   ├── global
+│   │   │   ├── s3
+│   │   │   └── route53
+│   │   ├── us-east-1
+│   │   │   ├── vpc
+│   │   │   ├── alb
+│   │   │   ├── ecr
+│   │   │   └── ecs
+│   │   ├── us-west-1
+│   │   │   ├── vpc
+│   │   │   ├── alb
+│   │   │   ├── ecr
+│   │   │   └── ecs
+│   │   └── ...
+│   ├── test
+│   │   └── ...
+│   └── prod
+│       └── ...
+└── modules
+    └── ...
 ```
 By using Terragrunt's ability to recursively search up and down directories
 as well utility to generate files that would otherwise need to be duplicated between
@@ -45,7 +42,7 @@ depending on the environment and region we want to deploy to.
 
 2. Execute the AWS docker container.
 ```bash
-docker run -it --rm --env-file env.list -v $HOME/Projects/willahern-com-infrastructure:/willahern-com-infrastructure -t aws
+docker run -it --rm --env-file env.list -v $HOME/Projects/williamahern-com-infrastructure:/williamahern-com-infrastructure -t aws
 ```
 
 3. Run Terragrunt + Terraform commands to your heart's delight!
