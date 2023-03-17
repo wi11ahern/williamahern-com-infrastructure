@@ -51,7 +51,7 @@ resource "aws_alb" "frontend_alb" {
 }
 
 resource "aws_lb_target_group" "frontend_alb_tg" {
-  name        = "${local.project_prefix}-ALB-TG-${substr(uuid(), 0, 3)}"
+  name        = "${local.project_prefix}-ALB-TG"
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
@@ -84,23 +84,36 @@ resource "aws_lb_listener" "http_listener" {
   }
 }
 
-# resource "aws_lb_listener" "https_listener" {
-#   load_balancer_arn = aws_alb.frontend_alb.arn
-#   port              = 443
-#   protocol          = "HTTPS"
-#   certificate_arn   = var.acm_certificate_arn
-#   ssl_policy        = "ELBSecurityPolicy-2016-08"
+resource "aws_lb_listener" "https_listener" {
+  load_balancer_arn = aws_alb.frontend_alb.arn
+  port              = 443
+  protocol          = "HTTPS"
+  certificate_arn   = var.acm_certificate_arn
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
 
-#   default_action {
-#     type             = "forward"
-#     target_group_arn = aws_lb_target_group.frontend_alb_tg.arn
-#   }
-# }
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.frontend_alb_tg.arn
+  }
+}
 
 resource "aws_route53_record" "alb_record" {
   allow_overwrite = true
   zone_id         = var.public_zone_id
   name            = var.domain_name
+  type            = "A"
+
+  alias {
+    name                   = aws_alb.frontend_alb.dns_name
+    zone_id                = aws_alb.frontend_alb.zone_id
+    evaluate_target_health = false
+  }
+}
+
+resource "aws_route53_record" "alb_record_www" {
+  allow_overwrite = true
+  zone_id         = var.public_zone_id
+  name            = "www"
   type            = "A"
 
   alias {

@@ -22,9 +22,9 @@ variable "domain_name" {
   type = string
 }
 
-# variable "acm_certificate_arn" {
-#   type = string
-# }
+variable "acm_certificate_arn" {
+  type = string
+}
 
 variable "public_zone_id" {
   type = string
