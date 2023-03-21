@@ -116,7 +116,7 @@ resource "aws_ecs_service" "frontend_service" {
   task_definition  = aws_ecs_task_definition.frontend_task.arn
   launch_type      = "FARGATE"
   platform_version = "LATEST"
-  desired_count    = 2
+  desired_count    = var.task_instance_count
 
   network_configuration {
     subnets          = var.public_subnet_ids

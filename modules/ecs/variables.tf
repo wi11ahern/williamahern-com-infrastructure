@@ -11,6 +11,11 @@ variable "tags" {
   default = {}
 }
 
+variable "task_instance_count" {
+  type    = number
+  default = 1
+}
+
 variable "vpc_id" {
   type = string
 }
