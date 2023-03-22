@@ -1,4 +1,4 @@
-resource "aws_ecs_cluster" "willahern_com_cluster" {
+resource "aws_ecs_cluster" "cluster" {
   name = "${local.project_prefix}-ECS-Cluster"
 
   setting {
@@ -112,7 +112,7 @@ resource "aws_security_group_rule" "alb_to_ecr_sg_rule" {
 
 resource "aws_ecs_service" "frontend_service" {
   name             = "frontend"
-  cluster          = aws_ecs_cluster.willahern_com_cluster.name
+  cluster          = aws_ecs_cluster.cluster.name
   task_definition  = aws_ecs_task_definition.frontend_task.arn
   launch_type      = "FARGATE"
   platform_version = "LATEST"
@@ -131,4 +131,22 @@ resource "aws_ecs_service" "frontend_service" {
   }
 
   tags = local.common_tags
+}
+
+# Monitoring
+resource "aws_cloudwatch_metric_alarm" "running_task_count_alarm" {
+  alarm_name                = "${local.project_prefix}-ECS-Running-Task-Count"
+  comparison_operator       = "LessThanThreshold"
+  evaluation_periods        = 2
+  metric_name               = "RunningTaskCount"
+  namespace                 = "ECS/ContainerInsights"
+  dimensions                = {
+    ClusterName = aws_ecs_cluster.cluster.name
+    ServiceName = aws_ecs_service.frontend_service.name
+  } 
+  period                    = 120
+  datapoints_to_alarm       = 1 
+  threshold                 = 1
+  statistic                 = "Average"
+  alarm_description         = "This alarm monitors that there is at least 1 running task in the ${local.project_prefix} ECS cluster."
 }
