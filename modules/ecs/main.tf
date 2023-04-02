@@ -55,8 +55,8 @@ resource "aws_ecs_task_definition" "frontend_task" {
       "name" : "react",
       "image" : "${var.ecr_repository_url}:latest",
       "essential" : true,
-      "cpu" : 1024,
-      "memory" : 2048,
+      "cpu" : 50,
+      "memory" : 1024,
       "portMappings" : [
         {
           "containerPort" : 80,
